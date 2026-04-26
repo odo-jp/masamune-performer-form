@@ -315,7 +315,7 @@
     <div class="section">
       <div class="section-label">
         <div class="section-num">二</div>
-        <span class="section-title">紹介文・来場者へのコメント</span>
+        <span class="section-title">紹介文や来場者へのコメント</span>
         <span class="badge-req">必須</span>
       </div>
       <textarea id="comment" placeholder="団体の紹介や、来場者へのメッセージなど"></textarea>
@@ -335,7 +335,7 @@
         <div class="upload-icon">🖼</div>
         <p>タップして画像を選択</p>
         <small>演舞の雰囲気が伝わるイメージ画像をお送りください</small><br>
-        <small style="color: var(--ink-light);">できるだけ1：1の画角でお願いします　JPG / PNG　最大2枚</small>
+        <small style="color: var(--ink-light);">できるだけ4:5の画角でお願いします　JPG / PNG　最大2枚</small>
         <input type="file" id="img_input" accept="image/jpeg,image/png,image/webp" multiple onchange="handleFiles(this.files)" />
       </div>
       <div class="preview-grid" id="preview_grid"></div>
@@ -422,7 +422,7 @@
   // ====================================================
   // ★ Google Apps Script の WebApp URL をここに貼る ★
   // ====================================================
-  const GAS_ENDPOINT = 'YOUR_GAS_WEB_APP_URL_HERE';
+  const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxLMc0MglPnoag98LhOS8zNxu1Apk4KJXR7NWn_uoRbyb3yzLdruylwpYXXmskdtCQv/exec';
 
   // ----- 画像（最大2枚）-----
   let imgFiles = [];
