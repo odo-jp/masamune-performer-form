@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>縁日政宗公まつり｜奉納演舞者情報フォーム</title>
+<title>縁日政宗公まつり｜奉納演舞者様情報フォーム</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600&family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -296,8 +296,7 @@
 
   <p class="intro">
     SNS等の告知掲載に向けた情報収集にご協力をお願いいたします。<br>
-    団体様名・紹介文・画像（1〜3枚）をご入力の上、送信ください。<br>
-    演舞の動画（任意・15秒以内）もお送りいただけます。
+    団体様名・紹介文・画像（1〜3枚）をご入力の上、送信ください。
   </p>
 
   <div id="form-body">
@@ -312,11 +311,11 @@
       <input type="text" id="group_name" placeholder="例：伊達流舞踊会" autocomplete="off" />
     </div>
 
-    <!-- ② 紹介文・コメント -->
+    <!-- ② 紹介文 -->
     <div class="section">
       <div class="section-label">
         <div class="section-num">二</div>
-        <span class="section-title">紹介文・来場者へのコメント</span>
+        <span class="section-title">紹介文や来場者へのコメント</span>
         <span class="badge-req">必須</span>
       </div>
       <textarea id="comment" placeholder="団体の紹介や、来場者へのメッセージなど"></textarea>
@@ -342,24 +341,6 @@
       <p class="hint" id="img_hint"></p>
     </div>
 
-    <!-- ③-b 動画 -->
-    <div class="section">
-      <div class="section-label">
-        <div class="section-num">三'</div>
-        <span class="section-title">演舞動画</span>
-        <span class="badge-opt">任意</span>
-      </div>
-      <div class="upload-zone" id="video_zone"
-        onclick="document.getElementById('video_input').click()">
-        <div class="upload-icon">🎬</div>
-        <p>タップして動画を選択</p>
-        <small>15秒以内・MP4形式・1ファイルまで</small>
-        <input type="file" id="video_input" accept="video/mp4,video/*" onchange="handleVideo(this)" />
-      </div>
-      <div id="video_preview" style="margin-top:10px;"></div>
-      <p class="hint" id="video_hint"></p>
-    </div>
-
     <!-- ④ 駐車場 -->
     <div class="section">
       <div class="section-label">
@@ -373,7 +354,7 @@
         <option value="1台">1台</option>
         <option value="2台以上（要相談）">2台以上（要相談）</option>
       </select>
-      <p class="hint">各団体1台までとなります。2台以上ご希望の場合は運営にご相談ください。</p>
+      <p class="hint">各団体1台までとなります。2台以上ご希望の場合はご相談させてください。</p>
     </div>
 
     <!-- ⑤ チラシ -->
@@ -480,40 +461,6 @@
     }
   }
 
-  // ----- 動画（最大1ファイル・15秒以内）-----
-  let videoFile = null;
-  function handleVideo(input) {
-    const file = input.files[0];
-    if (!file) return;
-    const url = URL.createObjectURL(file);
-    const video = document.createElement('video');
-    video.src = url;
-    video.onloadedmetadata = () => {
-      if (video.duration > 15) {
-        showErr('動画は15秒以内のものをお選びください。');
-        input.value = '';
-        return;
-      }
-      videoFile = file;
-      const preview = document.getElementById('video_preview');
-      preview.innerHTML = `
-        <div class="preview-card" style="max-width:200px;">
-          <video src="${url}" controls style="width:100%;height:120px;object-fit:cover;display:block;"></video>
-          <div class="p-name">${file.name}</div>
-          <button class="p-del" type="button" onclick="removeVideo()">×</button>
-        </div>`;
-      document.getElementById('video_zone').style.display = 'none';
-      document.getElementById('video_hint').textContent = '動画1件選択済み';
-      input.value = '';
-    };
-  }
-  function removeVideo() {
-    videoFile = null;
-    document.getElementById('video_preview').innerHTML = '';
-    document.getElementById('video_zone').style.display = '';
-    document.getElementById('video_hint').textContent = '';
-  }
-
   // ----- チラシ部数入力で受取方法を表示 -----
   function toggleFlyerMethod() {
     const val = document.getElementById('flyer_count').value;
@@ -592,11 +539,6 @@
         images.push({ name: f.name, type: f.type, data: await toBase64(f) });
       }
 
-      let videoData = null;
-      if (videoFile) {
-        videoData = { name: videoFile.name, type: videoFile.type, data: await toBase64(videoFile) };
-      }
-
       const payload = {
         group_name:      groupName,
         comment:         comment,
@@ -606,7 +548,6 @@
         postal_address:  receive === '郵送' ? address : '―',
         img_count:       images.length,
         images:          images,
-        video:           videoData,
         submitted_at:    new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })
       };
 
