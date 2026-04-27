@@ -1,579 +1,86 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>縁日政宗公まつり｜奉納演舞者情報フォーム</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600&family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet">
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+// ============================================================
+// 縁日政宗公まつり 奉納演舞者情報フォーム — Google Apps Script
+// ============================================================
 
-  :root {
-    --ink: #1a1208;
-    --ink-mid: #4a3c28;
-    --ink-light: #8a7a60;
-    --paper: #fdf8f0;
-    --paper-dark: #f0e8d8;
-    --gold: #c8922a;
-    --gold-light: #e8c46a;
-    --red: #8b2020;
-    --border: rgba(90,60,20,0.18);
-  }
+const FOLDER_NAME = '縁日政宗公まつり_演舞者画像';
 
-  html { scroll-behavior: smooth; }
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
 
-  body {
-    font-family: 'Noto Sans JP', sans-serif;
-    background: var(--paper);
-    color: var(--ink);
-    min-height: 100vh;
-  }
-
-  .hero {
-    background: var(--ink);
-    padding: 2.5rem 1.5rem 2rem;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-  .hero::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: repeating-linear-gradient(
-      45deg, transparent, transparent 30px,
-      rgba(200,146,42,0.04) 30px, rgba(200,146,42,0.04) 31px
-    );
-  }
-  .hero h1 {
-    font-family: 'Noto Serif JP', serif;
-    font-size: clamp(16px, 4vw, 22px);
-    font-weight: 600;
-    color: #fff;
-    letter-spacing: 0.12em;
-    line-height: 1.6;
-    position: relative;
-  }
-  .hero-rule {
-    width: 60px; height: 1px;
-    background: var(--gold);
-    margin: 1rem auto 0;
-    position: relative;
-  }
-
-  .container {
-    max-width: 640px;
-    margin: 0 auto;
-    padding: 2rem 1rem 4rem;
-  }
-
-  .intro {
-    font-size: 13px;
-    color: var(--ink-mid);
-    line-height: 1.9;
-    padding: 1.25rem 1.5rem;
-    background: var(--paper-dark);
-    border-left: 3px solid var(--gold);
-    border-radius: 0 6px 6px 0;
-    margin-bottom: 2.5rem;
-  }
-
-  .section { margin-bottom: 2rem; }
-  .section-label {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 0.5px solid var(--border);
-  }
-  .section-num {
-    width: 24px; height: 24px;
-    background: var(--ink);
-    color: var(--gold);
-    border-radius: 50%;
-    font-size: 12px;
-    font-weight: 500;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    font-family: 'Noto Serif JP', serif;
-  }
-  .section-title {
-    font-family: 'Noto Serif JP', serif;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--ink);
-    letter-spacing: 0.05em;
-  }
-  .badge-req {
-    font-size: 10px;
-    background: var(--red);
-    color: #fff;
-    padding: 2px 7px;
-    border-radius: 3px;
-    letter-spacing: 0.05em;
-  }
-  .badge-opt {
-    font-size: 10px;
-    color: var(--ink-light);
-    border: 0.5px solid var(--border);
-    padding: 2px 7px;
-    border-radius: 3px;
-  }
-
-  input[type="text"], input[type="number"], textarea {
-    width: 100%;
-    padding: 11px 14px;
-    font-size: 15px;
-    font-family: 'Noto Sans JP', sans-serif;
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--ink);
-    transition: border-color 0.2s, box-shadow 0.2s;
-    -webkit-appearance: none;
-  }
-  input[type="text"]:focus, input[type="number"]:focus, textarea:focus {
-    outline: none;
-    border-color: var(--gold);
-    box-shadow: 0 0 0 3px rgba(200,146,42,0.12);
-  }
-  input::placeholder, textarea::placeholder { color: #b8a888; }
-  textarea { resize: vertical; line-height: 1.7; min-height: 100px; }
-
-  select {
-    width: 100%;
-    padding: 11px 14px;
-    font-size: 15px;
-    font-family: 'Noto Sans JP', sans-serif;
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--ink);
-    transition: border-color 0.2s, box-shadow 0.2s;
-    -webkit-appearance: none;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a7a60' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 14px center;
-    cursor: pointer;
-  }
-  select:focus {
-    outline: none;
-    border-color: var(--gold);
-    box-shadow: 0 0 0 3px rgba(200,146,42,0.12);
-  }
-
-  /* Upload */
-  .upload-zone {
-    border: 1.5px dashed var(--border);
-    border-radius: 8px;
-    padding: 1.75rem 1rem;
-    text-align: center;
-    cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
-    background: #fff;
-  }
-  .upload-zone:hover { border-color: var(--gold); background: rgba(200,146,42,0.04); }
-  .upload-zone input { display: none; }
-  .upload-icon { font-size: 28px; margin-bottom: 8px; }
-  .upload-zone p { font-size: 13px; color: var(--ink-mid); }
-  .upload-zone small { font-size: 11px; color: var(--ink-light); }
-
-  .preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
-  .preview-card {
-    position: relative;
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid var(--border);
-  }
-  .preview-card img { width: 100%; height: 130px; object-fit: cover; display: block; }
-  .preview-card .p-name {
-    padding: 5px 8px;
-    font-size: 11px;
-    color: var(--ink-mid);
-    background: var(--paper-dark);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .preview-card .p-del {
-    position: absolute; top: 6px; right: 6px;
-    width: 22px; height: 22px;
-    background: rgba(26,18,8,0.65);
-    color: #fff; border: none; border-radius: 50%;
-    font-size: 13px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    line-height: 1;
-  }
-
-  /* Flyer */
-  .flyer-row { display: flex; align-items: center; gap: 10px; }
-  .flyer-unit { font-size: 14px; color: var(--ink-mid); }
-  .hint { font-size: 12px; color: var(--ink-light); margin-top: 6px; line-height: 1.6; }
-
-  /* チラシ受取方法 */
-  .flyer-method { margin-top: 12px; display: none; }
-  .flyer-method.visible { display: block; }
-  .radio-group { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
-  .radio-item {
-    display: flex; align-items: flex-start; gap: 10px;
-    padding: 10px 14px;
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    cursor: pointer;
-    transition: border-color 0.2s;
-  }
-  .radio-item:has(input:checked) { border-color: var(--gold); background: rgba(200,146,42,0.04); }
-  .radio-item input[type="radio"] {
-    width: auto;
-    margin-top: 2px;
-    accent-color: var(--gold);
-    flex-shrink: 0;
-  }
-  .radio-label { font-size: 14px; color: var(--ink); line-height: 1.5; }
-  .address-input { margin-top: 8px; display: none; }
-  .address-input.visible { display: block; }
-
-  /* Error */
-  .err-msg {
-    display: none;
-    background: #fdf0f0;
-    border: 1px solid #e0aaaa;
-    border-radius: 6px;
-    padding: 10px 14px;
-    font-size: 13px;
-    color: var(--red);
-    margin-top: 12px;
-  }
-
-  /* Submit */
-  .submit-wrap { margin-top: 2.5rem; }
-  .btn-submit {
-    width: 100%;
-    padding: 16px;
-    background: var(--ink);
-    color: var(--gold);
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-family: 'Noto Serif JP', serif;
-    font-weight: 600;
-    letter-spacing: 0.15em;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  .btn-submit:disabled { opacity: 0.45; cursor: default; }
-
-  /* Success */
-  .success-screen { display: none; text-align: center; padding: 3rem 1.5rem; }
-  .success-mon { font-family: 'Noto Serif JP', serif; font-size: 48px; color: var(--gold); margin-bottom: 1rem; }
-  .success-screen h2 { font-family: 'Noto Serif JP', serif; font-size: 20px; color: var(--ink); margin-bottom: 0.75rem; }
-  .success-screen p { font-size: 13px; color: var(--ink-mid); line-height: 1.8; }
-
-  .sending { display: none; }
-  .sending.active { display: block; text-align: center; padding: 1.5rem; color: var(--ink-mid); font-size: 14px; }
-  .spinner {
-    display: inline-block; width: 24px; height: 24px;
-    border: 2px solid var(--border); border-top-color: var(--gold);
-    border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 8px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  @media (max-width: 400px) {
-    .preview-grid { grid-template-columns: 1fr; }
-  }
-</style>
-</head>
-<body>
-
-<div class="hero">
-  <h1>縁日政宗公まつり<br>奉納演舞者情報フォーム</h1>
-  <div class="hero-rule"></div>
-</div>
-
-<div class="container">
-
-  <p class="intro">
-    SNS等の告知掲載に向けた情報収集にご協力をお願いいたします。<br>
-    団体名・紹介文・画像（1〜2枚）をご入力の上、送信ください。
-  </p>
-
-  <div id="form-body">
-
-    <!-- ① 団体名 -->
-    <div class="section">
-      <div class="section-label">
-        <div class="section-num">一</div>
-        <span class="section-title">団体名</span>
-        <span class="badge-req">必須</span>
-      </div>
-      <input type="text" id="group_name" placeholder="例：伊達流舞踊会" autocomplete="off" />
-    </div>
-
-    <!-- ② 紹介文・コメント -->
-    <div class="section">
-      <div class="section-label">
-        <div class="section-num">二</div>
-        <span class="section-title">紹介文や来場者へのコメント</span>
-        <span class="badge-req">必須</span>
-      </div>
-      <textarea id="comment" placeholder="団体の紹介や、来場者へのメッセージなど"></textarea>
-    </div>
-
-    <!-- ③ 画像 -->
-    <div class="section">
-      <div class="section-label">
-        <div class="section-num">三</div>
-        <span class="section-title">画像（1〜2枚）</span>
-        <span class="badge-req">必須</span>
-      </div>
-      <div class="upload-zone" id="upload_zone"
-        onclick="document.getElementById('img_input').click()"
-        ondragover="event.preventDefault()"
-        ondrop="handleDrop(event)">
-        <div class="upload-icon">🖼</div>
-        <p>タップして画像を選択</p>   
-        <small style="color: var(--ink-light);">できるだけ4:5の画角でお願いします　JPG / PNG　最大2枚</small>
-        <input type="file" id="img_input" accept="image/jpeg,image/png,image/webp" multiple onchange="handleFiles(this.files)" />
-      </div>
-      <div class="preview-grid" id="preview_grid"></div>
-      <p class="hint" id="img_hint"></p>
-    </div>
-
-    <!-- ④ 駐車場 -->
-    <div class="section">
-      <div class="section-label">
-        <div class="section-num">四</div>
-        <span class="section-title">駐車場ご利用台数</span>
-        <span class="badge-req">必須</span>
-      </div>
-      <select id="car_count">
-        <option value="" disabled selected>選択してください</option>
-        <option value="0台">0台（利用しない）</option>
-        <option value="1台">1台</option>
-        <option value="2台以上（要相談）">2台以上（要相談）</option>
-      </select>
-      <p class="hint">各団体1台までとなります。2台以上ご希望の場合は運営にご相談ください。</p>
-    </div>
-
-    <!-- ⑤ チラシ -->
-    <div class="section">
-      <div class="section-label">
-        <div class="section-num">五</div>
-        <span class="section-title">チラシの必要部数</span>
-        <span class="badge-opt">必要な場合のみ</span>
-      </div>
-      <div class="flyer-row">
-        <input type="text" inputmode="numeric" id="flyer_count" placeholder="0"
-          oninput="this.value=this.value.replace(/[０-９]/g,s=>String.fromCharCode(s.charCodeAt(0)-0xFEE0)).replace(/[^0-9]/g,'');toggleFlyerMethod()" />
-        <span class="flyer-unit">部</span>
-      </div>
-      <p class="hint">チラシを設置していただける場合のみ、必要な部数をご記入ください。</p>
-
-      <!-- 受取方法（部数入力時に表示） -->
-      <div class="flyer-method" id="flyer_method">
-        <p style="font-size:13px; color:var(--ink-mid); margin-bottom:4px;">受取方法をお選びください<span style="color:var(--red); margin-left:4px; font-size:11px;">必須</span></p>
-        <div class="radio-group">
-          <label class="radio-item">
-            <input type="radio" name="flyer_receive" value="青葉神社にて受取" onchange="toggleAddress()" />
-            <span class="radio-label">青葉神社にて受取</span>
-          </label>
-          <label class="radio-item">
-            <input type="radio" name="flyer_receive" value="郵送" onchange="toggleAddress()" />
-            <span class="radio-label">郵送（住所をご記入ください）</span>
-          </label>
-          <label class="radio-item">
-            <input type="radio" name="flyer_receive" value="画像データで受取" onchange="toggleAddress()" />
-            <span class="radio-label">画像データで受取</span>
-          </label>
-        </div>
-        <div class="address-input" id="address_input">
-          <input type="text" id="postal_address" placeholder="〒000-0000　仙台市青葉区…" style="margin-top:10px;" />
-        </div>
-      </div>
-    </div>
-
-    <div class="err-msg" id="err_msg"></div>
-
-    <div class="submit-wrap">
-      <button class="btn-submit" id="btn_submit" type="button" onclick="submitForm()">
-        送　信
-      </button>
-    </div>
-
-    <div class="sending" id="sending_indicator">
-      <div class="spinner"></div>
-      <p>送信中です。しばらくお待ちください…</p>
-    </div>
-
-  </div><!-- /form-body -->
-
-  <div class="success-screen" id="success_screen">
-    <div class="success-mon">✦</div>
-    <h2>送信が完了しました</h2>
-    <p>ご協力いただきありがとうございます。<br>内容を確認の上、担当者よりご連絡いたします。</p>
-  </div>
-
-</div><!-- /container -->
-
-<script>
-  // ====================================================
-  // ★ Google Apps Script の WebApp URL をここに貼る ★
-  // ====================================================
-  const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxLMc0MglPnoag98LhOS8zNxu1Apk4KJXR7NWn_uoRbyb3yzLdruylwpYXXmskdtCQv/exec';
-
-  // ----- 画像（最大2枚）-----
-  let imgFiles = [];
-  function handleFiles(files) {
-    const f = Array.from(files);
-    const remain = 2 - imgFiles.length;
-    imgFiles = [...imgFiles, ...f.slice(0, remain)];
-    renderPreviews();
-    document.getElementById('img_input').value = '';
-  }
-  function handleDrop(e) {
-    e.preventDefault();
-    handleFiles(e.dataTransfer.files);
-  }
-  function removeImg(i) {
-    imgFiles.splice(i, 1);
-    renderPreviews();
-  }
-  function renderPreviews() {
-    const grid = document.getElementById('preview_grid');
-    const hint = document.getElementById('img_hint');
-    const zone = document.getElementById('upload_zone');
-    grid.innerHTML = '';
-    imgFiles.forEach((f, i) => {
-      const url = URL.createObjectURL(f);
-      const card = document.createElement('div');
-      card.className = 'preview-card';
-      card.innerHTML = `<img src="${url}" alt="${f.name}"><div class="p-name">${f.name}</div><button class="p-del" type="button" onclick="removeImg(${i})">×</button>`;
-      grid.appendChild(card);
-    });
-    if (imgFiles.length >= 2) {
-      zone.style.display = 'none';
-      hint.textContent = '2枚選択済み（上限です）';
-    } else {
-      zone.style.display = '';
-      hint.textContent = imgFiles.length === 1 ? 'あと1枚追加できます' : '';
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow([
+        '受信日時',
+        '団体様名',
+        '紹介文・コメント',
+        '駐車台数',
+        'チラシ部数',
+        'チラシ受取方法',
+        '郵送先住所',
+        '画像1URL',
+        '画像2URL',
+        '画像3URL',
+        '動画URL'
+      ]);
+      sheet.getRange(1, 1, 1, 11).setFontWeight('bold');
     }
-  }
 
-  // ----- チラシ部数入力で受取方法を表示 -----
-  function toggleFlyerMethod() {
-    const val = document.getElementById('flyer_count').value;
-    const method = document.getElementById('flyer_method');
-    if (val && parseInt(val) > 0) {
-      method.classList.add('visible');
-    } else {
-      method.classList.remove('visible');
-      document.querySelectorAll('input[name="flyer_receive"]').forEach(r => r.checked = false);
-      document.getElementById('address_input').classList.remove('visible');
-      document.getElementById('postal_address').value = '';
-    }
-  }
-
-  // ----- 郵送選択で住所欄を表示 -----
-  function toggleAddress() {
-    const selected = document.querySelector('input[name="flyer_receive"]:checked');
-    const addrEl = document.getElementById('address_input');
-    if (selected && selected.value === '郵送') {
-      addrEl.classList.add('visible');
-    } else {
-      addrEl.classList.remove('visible');
-      document.getElementById('postal_address').value = '';
-    }
-  }
-
-  // ----- Base64変換 -----
-  function toBase64(file) {
-    return new Promise((res, rej) => {
-      const r = new FileReader();
-      r.onload = () => res(r.result.split(',')[1]);
-      r.onerror = rej;
-      r.readAsDataURL(file);
-    });
-  }
-
-  // ----- バリデーション -----
-  function showErr(msg) {
-    const el = document.getElementById('err_msg');
-    el.textContent = msg;
-    el.style.display = 'block';
-    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
-  function clearErr() {
-    document.getElementById('err_msg').style.display = 'none';
-  }
-
-  // ----- 送信 -----
-  async function submitForm() {
-    clearErr();
-    const groupName  = document.getElementById('group_name').value.trim();
-    const comment    = document.getElementById('comment').value.trim();
-    const carCount   = document.getElementById('car_count').value;
-    const flyerRaw   = document.getElementById('flyer_count').value;
-    const flyer      = flyerRaw.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)).replace(/[^0-9]/g, '').trim();
-    const flyerNum   = parseInt(flyer) || 0;
-    const receiveEl  = document.querySelector('input[name="flyer_receive"]:checked');
-    const receive    = receiveEl ? receiveEl.value : '';
-    const address    = document.getElementById('postal_address').value.trim();
-
-    if (!groupName)       { showErr('団体名を入力してください。'); return; }
-    if (!comment)         { showErr('紹介文・コメントを入力してください。'); return; }
-    if (!imgFiles.length) { showErr('画像を1枚以上アップロードしてください。'); return; }
-    if (!carCount)        { showErr('駐車場ご利用台数を選択してください。'); return; }
-    if (flyerNum > 0 && !receive) { showErr('チラシの受取方法を選択してください。'); return; }
-    if (receive === '郵送' && !address) { showErr('郵送先の住所を入力してください。'); return; }
-
-    const btn = document.getElementById('btn_submit');
-    const sending = document.getElementById('sending_indicator');
-    btn.disabled = true;
-    sending.classList.add('active');
-
-    try {
-      const images = [];
-      for (const f of imgFiles) {
-        images.push({ name: f.name, type: f.type, data: await toBase64(f) });
+    const imageUrls = [];
+    if (data.images && data.images.length > 0) {
+      const folder = getOrCreateFolder(FOLDER_NAME);
+      for (const img of data.images) {
+        const blob = Utilities.newBlob(
+          Utilities.base64Decode(img.data),
+          img.type,
+          img.name
+        );
+        const file = folder.createFile(blob);
+        file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+        imageUrls.push(file.getUrl());
       }
-
-      const payload = {
-        group_name:      groupName,
-        comment:         comment,
-        car_count:       carCount,
-        flyer_count:     flyerNum > 0 ? flyer + '部' : '不要',
-        flyer_receive:   flyerNum > 0 ? receive : '―',
-        postal_address:  receive === '郵送' ? address : '―',
-        img_count:       images.length,
-        images:          images,
-        submitted_at:    new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })
-      };
-
-      if (GAS_ENDPOINT === 'YOUR_GAS_WEB_APP_URL_HERE') {
-        console.log('【送信データ（デモ）】', payload);
-        await new Promise(r => setTimeout(r, 800));
-      } else {
-        await fetch(GAS_ENDPOINT, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-      }
-
-      document.getElementById('form-body').style.display = 'none';
-      document.getElementById('success_screen').style.display = 'block';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    } catch (err) {
-      sending.classList.remove('active');
-      btn.disabled = false;
-      showErr('送信中にエラーが発生しました。通信状態をご確認の上、再度お試しください。');
-      console.error(err);
     }
+
+    let videoUrl = '';
+    if (data.video && data.video.data) {
+      const folder = getOrCreateFolder(FOLDER_NAME);
+      const blob = Utilities.newBlob(
+        Utilities.base64Decode(data.video.data),
+        data.video.type,
+        data.video.name
+      );
+      const file = folder.createFile(blob);
+      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      videoUrl = file.getUrl();
+    }
+
+    sheet.appendRow([
+      data.submitted_at,
+      data.group_name,
+      data.comment,
+      data.car_count,
+      data.flyer_count,
+      data.flyer_receive,
+      data.postal_address,
+      imageUrls[0] || '',
+      imageUrls[1] || '',
+      imageUrls[2] || '',
+      videoUrl
+    ]);
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: 'ok' }))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: 'error', message: err.message }))
+      .setMimeType(ContentService.MimeType.JSON);
   }
-</script>
-</body>
-</html>
+}
+
+function getOrCreateFolder(name) {
+  const folders = DriveApp.getFoldersByName(name);
+  if (folders.hasNext()) return folders.next();
+  return DriveApp.createFolder(name);
+}
