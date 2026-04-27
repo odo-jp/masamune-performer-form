@@ -296,13 +296,13 @@
 
   <p class="intro">
     SNS等の告知掲載に向けた情報収集にご協力をお願いいたします。<br>
-    団体名・紹介文・画像（1〜3枚）をご入力の上、送信ください。<br>
+    団体様名・紹介文・画像（1〜3枚）をご入力の上、送信ください。<br>
     演舞の動画（任意・15秒以内）もお送りいただけます。
   </p>
 
   <div id="form-body">
 
-    <!-- ① 団体名 -->
+    <!-- ① 団体様名 -->
     <div class="section">
       <div class="section-label">
         <div class="section-num">一</div>
@@ -335,8 +335,7 @@
         ondrop="handleDrop(event)">
         <div class="upload-icon">🖼</div>
         <p>タップして画像を選択</p>
-        <small>演舞の雰囲気が伝わるイメージ画像をお送りください</small><br>
-        <small style="color: var(--ink-light);">できるだけ1：1の画角でお願いします　JPG / PNG　最大3枚</small>
+        <small style="color: var(--ink-light);">できるだけ4:5の画角でお願いします　JPG / PNG　最大3枚</small>
         <input type="file" id="img_input" accept="image/jpeg,image/png,image/webp" multiple onchange="handleFiles(this.files)" />
       </div>
       <div class="preview-grid" id="preview_grid"></div>
@@ -575,8 +574,8 @@
     const receive    = receiveEl ? receiveEl.value : '';
     const address    = document.getElementById('postal_address').value.trim();
 
-    if (!groupName)       { showErr('団体様名を入力してください。'); return; }
-    if (!comment)         { showErr('紹介文やコメントを入力してください。'); return; }
+    if (!groupName)       { showErr('団体名を入力してください。'); return; }
+    if (!comment)         { showErr('紹介文・コメントを入力してください。'); return; }
     if (!imgFiles.length) { showErr('画像を1枚以上アップロードしてください。'); return; }
     if (!carCount)        { showErr('駐車場ご利用台数を選択してください。'); return; }
     if (flyerNum > 0 && !receive) { showErr('チラシの受取方法を選択してください。'); return; }
